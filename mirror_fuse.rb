@@ -79,5 +79,5 @@ end
 mirror_fuse = MirrorFuse.new(MIRRORED_DIR)
 FuseFS.set_root(mirror_fuse)
 
-FuseFS.mount_under ARGV.shift
+FuseFS.mount_under(ARGV.shift,'allow_other')
 FuseFS.run
