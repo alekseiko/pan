@@ -2,12 +2,12 @@
 require "fusefs"
 require "logger"
 
-$LOGGER = Logger.new("/home/alekseiko/mirror_fuse.log", "monthly")
+$LOGGER = Logger.new(File.join(File.dirname(__FILE__),"mirror_fuse.log"), "monthly")
 $LOGGER.level = Logger::DEBUG
 
 MIRRORED_DIR = "/"
-class MirrorFuse 
-    
+class MirrorFuse
+
     def initialize(root)
         @root = root
     end
@@ -35,15 +35,15 @@ class MirrorFuse
         $LOGGER.debug("Can write #{path}")
         File.new("#{@root}#{path}").writable?
     end
-    
+
     def write_to(path, file)
-        $LOGGER.debug("Write to path:#{path} file:#{file}")        
+        $LOGGER.debug("Write to path:#{path} file:#{file}")
     end
 
     # Delete a file
     def can_delete?(path)
         $LOGGER.debug("Can delete file path : #{path}")
-        File.new("#{@root}#{path}").writable? 
+        File.new("#{@root}#{path}").writable?
     end
 
     def delete(path)
@@ -56,7 +56,7 @@ class MirrorFuse
         $LOGGER.debug("Can mkdir path : #{path}")
         File.new("#{@root}#{path}").writable?
     end
-    
+
     def mkdir(path, dir = nil)
         $LOGGER.debug("Mkdir path: #{path} dir #{dir}")
         Dir.mkdir("#{@root}#{path}/#{dir}") if dir != nil
@@ -66,7 +66,7 @@ class MirrorFuse
     # Delete an existing directory.
     def can_rmdir?(path)
         $LOGGER.debug("Can rmdir path : #{path}")
-        File.new("#{@root}#{path}").writable? 
+        File.new("#{@root}#{path}").writable?
     end
 
     def rmdir(path)
