@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require "fusefs"
 require "logger"
+require "pathname"
 
 $LOGGER = Logger.new(File.join(File.dirname(__FILE__),"mirror_fuse.log"), "monthly")
 $LOGGER.level = Logger::DEBUG
@@ -33,17 +34,20 @@ class MirrorFuse
     # Write to a file
     def can_write?(path)
         $LOGGER.debug("Can write #{path}")
-        File.new("#{@root}#{path}").writable?
+        can_write(path)
     end
 
-    def write_to(path, file)
-        $LOGGER.debug("Write to path:#{path} file:#{file}")
+    def write_to(path, data)
+        $LOGGER.debug("Write to path:#{path} data:#{data}")
+        File.open("#{@root}#{path}", "w+") do |file|
+            file.write(data)
+        end
     end
 
     # Delete a file
     def can_delete?(path)
         $LOGGER.debug("Can delete file path : #{path}")
-        File.new("#{@root}#{path}").writable?
+        can_write(path)
     end
 
     def delete(path)
@@ -54,24 +58,32 @@ class MirrorFuse
     # Make a new directory
     def can_mkdir?(path)
         $LOGGER.debug("Can mkdir path : #{path}")
-        File.new("#{@root}#{path}").writable?
+        can_write(path)
     end
 
     def mkdir(path, dir = nil)
         $LOGGER.debug("Mkdir path: #{path} dir #{dir}")
-        Dir.mkdir("#{@root}#{path}/#{dir}") if dir != nil
+        real_path = "#{@root}#{path}"
+        real_path += dir unless dir == nil
+        Dir.mkdir(real_path) 
     end
 
 
     # Delete an existing directory.
     def can_rmdir?(path)
         $LOGGER.debug("Can rmdir path : #{path}")
-        File.new("#{@root}#{path}").writable?
+        can_write(path)
     end
 
     def rmdir(path)
         $LOGGER.debug("Rmdir path: #{path}")
-        Dir.rmdir("#{path}")
+        Dir.rmdir("#{@root}#{path}")
+    end
+    
+    private
+    def can_write(path)
+        real_path = Pathname.new("#{@root}#{path}")
+        File.writable?(real_path.parent)
     end
 end
 # init mirror_fuse
