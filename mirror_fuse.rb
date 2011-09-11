@@ -74,10 +74,18 @@ class MirrorFuse
         Dir.rmdir("#{path}")
     end
 end
-
 # init mirror_fuse
 mirror_fuse = MirrorFuse.new(MIRRORED_DIR)
 FuseFS.set_root(mirror_fuse)
+FuseFS.mount_under(ARGV.shift,"allow_other")
 
-FuseFS.mount_under(ARGV.shift,'allow_other')
+# Setup trap for TERM signal for unmounting fuse 
+# if you sent KILL sign then you need umount fuse by hand
+handler = Proc.new {
+    $LOGGER.debug("Unmount mirrored fuse")
+    FuseFS.unmount
+    Process.exit
+}
+Kernel.trap("TERM", handler)
+
 FuseFS.run
