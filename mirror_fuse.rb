@@ -33,8 +33,9 @@ class MirrorFuse
 
     # Write to a file
     def can_write?(path)
-        $LOGGER.debug("Can write #{path}")
-        can_write(path)
+        result = can_write(path)
+        $LOGGER.debug("Can write #{path} = #{result}")
+        return result
     end
 
     def write_to(path, data)
@@ -46,8 +47,9 @@ class MirrorFuse
 
     # Delete a file
     def can_delete?(path)
-        $LOGGER.debug("Can delete file path : #{path}")
-        can_write(path)
+        result = can_write(path)
+        $LOGGER.debug("Can delete file path : #{path} = #{result}")
+        return result
     end
 
     def delete(path)
@@ -57,8 +59,9 @@ class MirrorFuse
 
     # Make a new directory
     def can_mkdir?(path)
-        $LOGGER.debug("Can mkdir path : #{path}")
-        can_write(path)
+        result = can_write(path)
+        $LOGGER.debug("Can mkdir path : #{path} = #{result}")
+        return result
     end
 
     def mkdir(path, dir = nil)
@@ -71,8 +74,9 @@ class MirrorFuse
 
     # Delete an existing directory.
     def can_rmdir?(path)
-        $LOGGER.debug("Can rmdir path : #{path}")
-        can_write(path)
+        result = can_write(path)
+        $LOGGER.debug("Can rmdir path : #{path} = #{result}")
+        return result
     end
 
     def rmdir(path)
