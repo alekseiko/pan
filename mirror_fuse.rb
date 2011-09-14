@@ -16,26 +16,26 @@ class MirrorFuse
 
     def contents(path)
         $LOGGER.debug("Call to give of content by #{path}")
-        Dir.entries("#{@root}#{path}") - [".",".."]
+        Dir.entries(File.join(@root, path)) - [".",".."]
     end
 
     def directory?(path)
-        File.directory? "#{@root}#{path}"
+        File.directory? File.join(@root, path)
     end
 
     def file?(path)
-        File.file? "#{@root}#{path}"
+        File.file? File.join(@root, path)
     end
 
     def executable?(path)
-        result = File.executable?("#{@root}#{path}")
+        result = File.executable?(File.join(@root, path))
         $LOGGER.debug("Is #{path} executable = #{result}")
         return result
     end
 
     def read_file(path)
         $LOGGER.debug("Read file by #{path}")
-        IO.read("#{@root}#{path}")
+        IO.read(File.join(@root, path))
     end
 
     # Write to a file
@@ -47,7 +47,7 @@ class MirrorFuse
 
     def write_to(path, data)
         $LOGGER.debug("Write to path:#{path} data:#{data}")
-        File.open("#{@root}#{path}", "w+") do |file|
+        File.open(File.join(@root, path), "w+") do |file|
             file.write(data)
         end
     end
@@ -61,7 +61,7 @@ class MirrorFuse
 
     def delete(path)
         $LOGGER.debug("Delete path: #{path}")
-        File.delete("#{@root}#{path}")
+        File.delete(File.join(@root, path))
     end
 
     # Make a new directory
@@ -73,7 +73,7 @@ class MirrorFuse
 
     def mkdir(path, dir = nil)
         $LOGGER.debug("Mkdir path: #{path} dir #{dir}")
-        real_path = "#{@root}#{path}"
+        real_path = File.join(@root, path)
         real_path += dir unless dir == nil
         Dir.mkdir(real_path) 
     end
@@ -88,7 +88,7 @@ class MirrorFuse
 
     def rmdir(path)
         $LOGGER.debug("Rmdir path: #{path}")
-        Dir.rmdir("#{@root}#{path}")
+        Dir.rmdir(File.join(@root, path))
     end
 
     def size(path)
@@ -124,11 +124,13 @@ class MirrorFuse
     def raw_write(path, off, sz, buf)
             $LOGGER.debug("Raw write to file #{path}")
             file = @files[path]
+            $LOGGER.debug("Raw write to file = #{file}")
             return unless file
             $LOGGER.debug("File is opened raw write to file path=#{path}, 
                             off = #{off}, size = #{size}, buf = #{buf}")
             file.seek(off, File::SEEK_SET)
             file.write(buf[0, sz])
+            file.flush()
         rescue
             $LOGGER.error("Failed to raw write file path = #{path}, 
                             off = #{off}, size = #{size}, buf = #{buf}")
@@ -146,7 +148,7 @@ class MirrorFuse
     
     private
     def write?(path)
-        real_path = Pathname.new("#{@root}#{path}")
+        real_path = Pathname.new(File.join(@root, path))
         File.writable?(real_path.parent)
     end
 end
